@@ -19,18 +19,10 @@ $testHelloJspSvlt = "<a href=""hello"">servlet</a>"
 #File Watcher Function - will need this to make sure the WAR gets unzipped 
 function WaitForFile($File) 
 {
-
-
     while(!(Test-Path $File)) 
     {
-
-        
         Start-Sleep -s 10;
-
-        
     }
-
-    
 }
 
 #Test Function - test logic that can be called to test the newly running site
