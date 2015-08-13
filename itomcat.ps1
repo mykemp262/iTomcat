@@ -84,20 +84,22 @@ else
     Write-Host ("Tomcat Sample App copied to: {0} `n" -f $warHome)
 }
 
-# Test Site
-$testFileExists = Test-Path $testFile
-
-if($testFileExists -eq $True)
-{
-    Invoke-Expression "del $testFile"
-}
-
 Write-Host "Test Install `n`n`n"
 
 $testDirExists = Test-Path $testDir
 if($testDirExists -eq $True)
 {
     Write-Host ("{0} exists" -f $testDir)
+    Write-Host ("Testing to see if {0} exists" -f $testFile)
+
+    # Test Site
+    $testFileExists = Test-Path $testFile
+
+    if($testFileExists -eq $True)
+    {
+        Invoke-Expression "del $testFile"
+    }
+
 }
 else
 {
