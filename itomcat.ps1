@@ -10,16 +10,17 @@ $warHome = "C:\tools\apache-tomcat-8.0.23\webapps\sample.war"
 
 # Test Parameters
 $testURL = "http://localhost:8080/sample/"
-$testFile = "C:\Users\Public\Downloads\test.txt"
+$testDir = "C:\testdir\"
+$testFile = "C:\testdir\test.txt"
 $testHello = "Sample ""Hello, World"" Application"
 $testHelloJsp = "<a href=""hello.jsp"">JSP page</a>"
 $testHelloJspSvlt = "<a href=""hello"">servlet</a>"
 
 
-#File Watcher Function - will need this to make sure the WAR gets unzipped 
-function WaitForFile($File) 
+#File Watcher Function - will need this to make sure the WAR gets unzipped
+function WaitForFile($File)
 {
-    while(!(Test-Path $File)) 
+    while(!(Test-Path $File))
     {
         Start-Sleep -s 10;
     }
@@ -49,11 +50,11 @@ if($isChocolatey -eq $True)
 else
 {
     $oldPath=(Get-ItemProperty -Path 'Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment' -Name PATH).Path
-    
+
     iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
-    
+
     $newPath=$oldPath+";C:\ProgramData\chocolatey\bin"
-    
+
     SetItemProperty -Path 'Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment' -Name PATH -Value $newPath
 }
 
@@ -81,7 +82,7 @@ else
     Invoke-WebRequest $sampleAppCodeURL -OutFile $warHome
     WaitForFile($sampleApp)
     Write-Host ("Tomcat Sample App copied to: {0} `n" -f $warHome)
-} 
+}
 
 # Test Site
 $testFileExists = Test-Path $testFile
@@ -93,14 +94,24 @@ if($testFileExists -eq $True)
 
 Write-Host "Test Install `n`n`n"
 
+$testDirExists = Test-Path $testDir
+if($testDirExists -eq $True)
+{
+    Write-Host ("{0} exists" -f $testDir)
+}
+else
+{
+    New-Item -ItemType Directory -Force -Path $testDir
+}
+
 Invoke-WebRequest $testURL -OutFile $testFile
 
-Write-Host "Test for Hello, World: " 
+Write-Host "Test for Hello, World: "
 Assert(Get-Content $testFile | Select-String $testHello -quiet)
-Write-Host "Test for hello Jsp Link: " 
-Assert(Get-Content $testFile | Select-String $testHello -quiet)
-Write-Host "Test for hello Servlett Link: " 
-Assert(Get-Content $testFile | Select-String $testHello -quiet)
+Write-Host "Test for hello Jsp Link: "
+Assert(Get-Content $testFile | Select-String $testHelloJsp -quiet)
+Write-Host "Test for hello Servlett Link: "
+Assert(Get-Content $testFile | Select-String $testHelloJspSvlt -quiet)
 
 # Cleanup Test File
 Invoke-Expression "del $testFile"
